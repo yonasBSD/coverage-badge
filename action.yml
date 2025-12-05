@@ -1,0 +1,61 @@
+name: 'Coverage Badge'
+description: 'Generate a shields.io-style SVG coverage badge'
+author: 'Ozan Kaşıkçı'
+
+branding:
+  icon: 'award'
+  color: 'green'
+
+inputs:
+  coverage:
+    description: 'Coverage percentage (0-100, decimals allowed)'
+    required: true
+  output:
+    description: 'Output path for the SVG file'
+    required: true
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Determine platform
+      id: platform
+      shell: bash
+      run: |
+        case "${{ runner.os }}-${{ runner.arch }}" in
+          Linux-X64)
+            echo "target=x86_64-unknown-linux-gnu" >> $GITHUB_OUTPUT
+            ;;
+          macOS-X64)
+            echo "target=x86_64-apple-darwin" >> $GITHUB_OUTPUT
+            ;;
+          macOS-ARM64)
+            echo "target=aarch64-apple-darwin" >> $GITHUB_OUTPUT
+            ;;
+          *)
+            echo "::error::Unsupported platform: ${{ runner.os }}-${{ runner.arch }}"
+            exit 1
+            ;;
+        esac
+
+    - name: Download and extract binary
+      shell: bash
+      run: |
+        VERSION="0.1.0"
+        TARGET="${{ steps.platform.outputs.target }}"
+        URL="https://github.com/ozankasikci/rust-test-coverage-badge/releases/download/v${VERSION}/coverage-badge-${TARGET}.tar.gz"
+
+        echo "Downloading from: $URL"
+        curl -fsSL "$URL" -o coverage-badge.tar.gz
+        tar -xzf coverage-badge.tar.gz
+        chmod +x coverage-badge
+
+    - name: Generate badge
+      shell: bash
+      run: |
+        ./coverage-badge -c "${{ inputs.coverage }}" -o "${{ inputs.output }}"
+        echo "Badge generated at ${{ inputs.output }}"
+
+    - name: Cleanup
+      shell: bash
+      run: |
+        rm -f coverage-badge coverage-badge.tar.gz
