@@ -104,4 +104,55 @@ mod tests {
         let svg = generate_badge(85.5);
         assert!(svg.contains("85.5%"));
     }
+
+    #[test]
+    fn test_format_percentage_whole_numbers() {
+        assert_eq!(format_percentage(0.0), "0%");
+        assert_eq!(format_percentage(50.0), "50%");
+        assert_eq!(format_percentage(100.0), "100%");
+    }
+
+    #[test]
+    fn test_format_percentage_decimals() {
+        assert_eq!(format_percentage(50.5), "50.5%");
+        assert_eq!(format_percentage(99.9), "99.9%");
+        assert_eq!(format_percentage(0.1), "0.1%");
+    }
+
+    #[test]
+    fn test_badge_yellow_coverage() {
+        let svg = generate_badge(65.0);
+        assert!(svg.contains("#dfb317"), "65% coverage should use yellow color");
+    }
+
+    #[test]
+    fn test_badge_boundary_values() {
+        // Test boundary at 50%
+        let svg_49 = generate_badge(49.9);
+        assert!(svg_49.contains("#e05d44"), "49.9% should be red");
+
+        let svg_50 = generate_badge(50.0);
+        assert!(svg_50.contains("#dfb317"), "50% should be yellow");
+
+        // Test boundary at 80%
+        let svg_79 = generate_badge(79.9);
+        assert!(svg_79.contains("#dfb317"), "79.9% should be yellow");
+
+        let svg_80 = generate_badge(80.0);
+        assert!(svg_80.contains("#4c1"), "80% should be green");
+    }
+
+    #[test]
+    fn test_badge_dimensions() {
+        let svg = generate_badge(50.0);
+        assert!(svg.contains("height=\"20\""), "Badge should have height 20");
+        assert!(svg.contains("width="), "Badge should have width attribute");
+    }
+
+    #[test]
+    fn test_badge_has_gradient() {
+        let svg = generate_badge(50.0);
+        assert!(svg.contains("linearGradient"), "Badge should have gradient");
+        assert!(svg.contains("id=\"smooth\""), "Gradient should have id 'smooth'");
+    }
 }
