@@ -1,6 +1,6 @@
 # coverage-badge
 
-[![CI](https://github.com/ozankasikci/rust-test-coverage-badge/actions/workflows/coverage.yml/badge.svg)](https://github.com/ozankasikci/rust-test-coverage-badge/actions/workflows/coverage.yml)
+[![CI](https://github.com/yonasBSD/coverage-badge/actions/workflows/coverage.yml/badge.svg)](https://github.com/yonasBSD/coverage-badge/actions/workflows/coverage.yml)
 [![Crates.io](https://img.shields.io/crates/v/coverage-badge.svg)](https://crates.io/crates/coverage-badge)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 ![Coverage](assets/coverage.svg)
@@ -22,7 +22,7 @@ Add this step to your workflow after running your coverage tool:
 
 ```yaml
 - name: Generate coverage badge
-  uses: ozankasikci/rust-test-coverage-badge@v1
+  uses: yonasBSD/coverage-badge@v1
   with:
     coverage: ${{ steps.coverage.outputs.percentage }}
     output: assets/coverage.svg
@@ -66,7 +66,7 @@ jobs:
           echo "percentage=85.5" >> $GITHUB_OUTPUT
 
       - name: Generate coverage badge
-        uses: ozankasikci/rust-test-coverage-badge@v1
+        uses: yonasBSD/coverage-badge@v1
         with:
           coverage: ${{ steps.coverage.outputs.percentage }}
           output: assets/coverage.svg
@@ -96,7 +96,7 @@ For local development or custom setups, use the CLI directly.
 cargo install coverage-badge
 
 # Or download from Releases
-# https://github.com/ozankasikci/rust-test-coverage-badge/releases
+# https://github.com/yonasBSD/coverage-badge/releases
 ```
 
 **Run:**

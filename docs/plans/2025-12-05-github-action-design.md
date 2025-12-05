@@ -10,7 +10,7 @@ After running their coverage tool, users add:
 
 ```yaml
 - name: Generate coverage badge
-  uses: ozankasikci/rust-test-coverage-badge@v1
+  uses: yonasBSD/coverage-badge@v1
   with:
     coverage: ${{ steps.coverage.outputs.percentage }}
     output: assets/coverage.svg
@@ -43,7 +43,7 @@ Composite action with shell steps:
    - `macOS` + `ARM64` → `coverage-badge-darwin-arm64`
    - `Windows` + `X64` → `coverage-badge-windows-x86_64.exe`
 
-2. **Download binary:** Fetch from `https://github.com/ozankasikci/rust-test-coverage-badge/releases/download/v{version}/...`
+2. **Download binary:** Fetch from `https://github.com/yonasBSD/coverage-badge/releases/download/v{version}/...`
 
 3. **Make executable:** `chmod +x` (non-Windows)
 
@@ -103,7 +103,7 @@ jobs:
           echo "percentage=85.5" >> $GITHUB_OUTPUT
 
       - name: Generate coverage badge
-        uses: ozankasikci/rust-test-coverage-badge@v1
+        uses: yonasBSD/coverage-badge@v1
         with:
           coverage: ${{ steps.coverage.outputs.percentage }}
           output: assets/coverage.svg

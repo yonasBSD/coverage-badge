@@ -31,7 +31,7 @@ jobs:
           echo "Coverage: $COVERAGE%"
 
       - name: Generate coverage badge
-        uses: ozankasikci/rust-test-coverage-badge@v1
+        uses: yonasBSD/coverage-badge@v1
         with:
           coverage: ${{ steps.coverage.outputs.percentage }}
           output: assets/coverage.svg

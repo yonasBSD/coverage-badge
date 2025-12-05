@@ -62,7 +62,7 @@ runs:
       run: |
         VERSION="0.1.0"
         TARGET="${{ steps.platform.outputs.target }}"
-        URL="https://github.com/ozankasikci/rust-test-coverage-badge/releases/download/v${VERSION}/coverage-badge-${TARGET}.tar.gz"
+        URL="https://github.com/yonasBSD/coverage-badge/releases/download/v${VERSION}/coverage-badge-${TARGET}.tar.gz"
 
         echo "Downloading from: $URL"
         curl -fsSL "$URL" -o coverage-badge.tar.gz
@@ -115,7 +115,7 @@ Add this step to your workflow after running your coverage tool:
 
 ```yaml
 - name: Generate coverage badge
-  uses: ozankasikci/rust-test-coverage-badge@v1
+  uses: yonasBSD/coverage-badge@v1
   with:
     coverage: ${{ steps.coverage.outputs.percentage }}
     output: assets/coverage.svg
@@ -155,7 +155,7 @@ jobs:
           echo "percentage=85.5" >> $GITHUB_OUTPUT
 
       - name: Generate coverage badge
-        uses: ozankasikci/rust-test-coverage-badge@v1
+        uses: yonasBSD/coverage-badge@v1
         with:
           coverage: ${{ steps.coverage.outputs.percentage }}
           output: assets/coverage.svg
@@ -189,7 +189,7 @@ cargo install coverage-badge
 
 ### Install from Releases
 
-Download the binary for your platform from [Releases](https://github.com/ozankasikci/rust-test-coverage-badge/releases).
+Download the binary for your platform from [Releases](https://github.com/yonasBSD/coverage-badge/releases).
 
 ### Run
 
@@ -236,7 +236,7 @@ Expected: SVG content starting with `<svg`
 
 **Step 3: Verify release assets exist**
 
-Run: `curl -sI "https://github.com/ozankasikci/rust-test-coverage-badge/releases/download/v0.1.0/coverage-badge-x86_64-unknown-linux-gnu.tar.gz" | head -1`
+Run: `curl -sI "https://github.com/yonasBSD/coverage-badge/releases/download/v0.1.0/coverage-badge-x86_64-unknown-linux-gnu.tar.gz" | head -1`
 Expected: `HTTP/2 302` or `HTTP/2 200` (redirect to asset)
 
 ---
@@ -304,7 +304,7 @@ jobs:
           echo "Coverage: $COVERAGE%"
 
       - name: Generate badge
-        uses: ozankasikci/rust-test-coverage-badge@v1
+        uses: yonasBSD/coverage-badge@v1
         with:
           coverage: ${{ steps.coverage.outputs.percentage }}
           output: assets/coverage.svg
