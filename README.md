@@ -1,11 +1,17 @@
-# coverage-badge
+# Coverage Badge
 
-[![CI](https://github.com/yonasBSD/coverage-badge/actions/workflows/coverage.yml/badge.svg)](https://github.com/yonasBSD/coverage-badge/actions/workflows/coverage.yml)
-[![Crates.io](https://img.shields.io/crates/v/coverage-badge.svg)](https://crates.io/crates/coverage-badge)
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 ![Coverage](assets/coverage.svg)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
-A GitHub Action and CLI tool that generates shields.io-style SVG badges for test coverage.
+![GitHub open issues](https://img.shields.io/github/issues/yonasBSD/coverage-badge)
+![GitHub closed issues](https://img.shields.io/github/issues-closed/yonasBSD/coverage-badge)
+![GitHub open pull requests](https://img.shields.io/github/issues-pr/yonasBSD/coverage-badge)
+![GitHub closed pull requests](https://img.shields.io/github/issues-pr-closed/yonasBSD/coverage-badge)
+
+![GitHub release (latest by date)](https://img.shields.io/github/v/release/yonasBSD/coverage-badge)
+![GitHub release date](https://img.shields.io/github/release-date/yonasBSD/coverage-badge)
+![GitHub commits since latest release](https://img.shields.io/github/commits-since/yonasBSD/coverage-badge/latest)
+![GitHub last commit](https://img.shields.io/github/last-commit/yonasBSD/coverage-badge)
 
 ## Table of Contents
 
