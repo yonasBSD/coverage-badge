@@ -1,5 +1,8 @@
 # coverage-badge
 
+[![CI](https://github.com/ozankasikci/rust-test-coverage-badge/actions/workflows/coverage.yml/badge.svg)](https://github.com/ozankasikci/rust-test-coverage-badge/actions/workflows/coverage.yml)
+[![Crates.io](https://img.shields.io/crates/v/coverage-badge.svg)](https://crates.io/crates/coverage-badge)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 ![Coverage](assets/coverage.svg)
 
 A GitHub Action and CLI tool that generates shields.io-style SVG badges for test coverage.
