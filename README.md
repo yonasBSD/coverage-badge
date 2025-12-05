@@ -4,7 +4,16 @@
 
 A GitHub Action and CLI tool that generates shields.io-style SVG badges for test coverage.
 
-## Quick Start (GitHub Action)
+## Table of Contents
+
+- [Quick Start](#quick-start)
+- [Full Workflow Example](#full-workflow-example)
+- [Action Inputs](#action-inputs)
+- [CLI Usage](#cli-usage)
+- [Color Thresholds](#color-thresholds)
+- [License](#license)
+
+## Quick Start
 
 Add this step to your workflow after running your coverage tool:
 
@@ -23,6 +32,9 @@ Then reference the badge in your README:
 ```
 
 ## Full Workflow Example
+
+<details>
+<summary>Click to expand complete workflow</summary>
 
 ```yaml
 name: Coverage
@@ -65,6 +77,8 @@ jobs:
           git push
 ```
 
+</details>
+
 ## Action Inputs
 
 | Input | Required | Description |
@@ -74,23 +88,28 @@ jobs:
 
 ## CLI Usage
 
-For local development or custom setups, you can use the CLI directly.
+For local development or custom setups, use the CLI directly.
 
-### Install via Cargo
+**Install:**
 
 ```bash
+# Via Cargo
 cargo install coverage-badge
+
+# Or download from Releases
+# https://github.com/ozankasikci/rust-test-coverage-badge/releases
 ```
 
-### Install from Releases
-
-Download the binary for your platform from [Releases](https://github.com/ozankasikci/rust-test-coverage-badge/releases).
-
-### Run
+**Run:**
 
 ```bash
-coverage-badge --coverage 85 --output assets/coverage.svg
+coverage-badge -c 85 -o assets/coverage.svg
 ```
+
+| Option | Short | Description |
+|--------|-------|-------------|
+| `--coverage` | `-c` | Coverage percentage (0-100, decimals allowed) |
+| `--output` | `-o` | Output path for the SVG file |
 
 ## Color Thresholds
 
