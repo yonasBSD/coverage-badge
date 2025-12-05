@@ -2,64 +2,143 @@ name: Release
 
 on:
   push:
+    # Enable when testing release infrastructure on a branch.
+    # branches:
+    # - ag/release
     tags:
-      - 'v*'
-
-permissions:
-  contents: write
+    - '[0-9]+.[0-9]+.[0-9]+'
 
 jobs:
-  build:
-    strategy:
-      matrix:
-        include:
-          - target: x86_64-apple-darwin
-            os: macos-latest
-            name: coverage-badge-x86_64-apple-darwin.tar.gz
-          - target: aarch64-apple-darwin
-            os: macos-latest
-            name: coverage-badge-aarch64-apple-darwin.tar.gz
-          - target: x86_64-unknown-linux-gnu
-            os: ubuntu-latest
-            name: coverage-badge-x86_64-unknown-linux-gnu.tar.gz
-
-    runs-on: ${{ matrix.os }}
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Install Rust
-        uses: dtolnay/rust-toolchain@stable
-        with:
-          targets: ${{ matrix.target }}
-
-      - name: Build
-        run: cargo build --release --target ${{ matrix.target }}
-
-      - name: Package
-        run: |
-          cd target/${{ matrix.target }}/release
-          tar czvf ../../../${{ matrix.name }} coverage-badge
-          cd -
-
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: ${{ matrix.name }}
-          path: ${{ matrix.name }}
-
-  release:
-    needs: build
+  create-release:
     runs-on: ubuntu-latest
+    # env:
+    #   DOCTAVE_VERSION: "0.0.0"
     steps:
-      - uses: actions/checkout@v4
+      - name: Create artifacts directory
+        run: mkdir artifacts
 
-      - name: Download artifacts
-        uses: actions/download-artifact@v4
+      - name: Get the release version from the tag
+        if: env.DOCTAVE_VERSION == ''
+        run: |
+          # See: https://github.community/t5/GitHub-Actions/How-to-get-just-the-tag-name/m-p/32167/highlight/true#M1027
+          echo "DOCTAVE_VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
+
+      - name: Create GitHub release
+        id: release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
+          tag_name: ${{ env.DOCTAVE_VERSION }}
+          release_name: ${{ env.DOCTAVE_VERSION }}
+
+      - name: Save release upload URL to artifact
+        run: echo "${{ steps.release.outputs.upload_url }}" > artifacts/release-upload-url
+
+      - name: Save version number to artifact
+        run: echo "${{ env.DOCTAVE_VERSION }}" > artifacts/release-version
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v1
+        with:
+          name: artifacts
           path: artifacts
 
-      - name: Create Release
-        uses: softprops/action-gh-release@v1
+  build:
+    name: Build Release
+    strategy:
+      matrix:
+        build: [linux, macos, windows]
+        include:
+          - build: linux
+            os: ubuntu-latest
+            target: x86_64-unknown-linux-musl
+            artifact: doctave
+            rustflags: ""
+          - build: macos
+            os: macos-latest
+            target: x86_64-apple-darwin
+            artifact: doctave
+            rustflags: ""
+          - build: windows
+            os: windows-2019
+            target: x86_64-pc-windows-msvc
+            artifact: doctave.exe
+            rustflags: "-C target-feature=+crt-static"
+
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v2
+
+      - name: Set stable toolchain
+        uses: actions-rs/toolchain@v1
         with:
-          files: artifacts/**/*.tar.gz
-          generate_release_notes: true
+          toolchain: stable
+          target: ${{ matrix.target }}
+
+      - name: Build release
+        uses: actions-rs/cargo@v1
+        env:
+          RUSTFLAGS: ${{ matrix.rustflags }}
+        with:
+          command: build
+          args: --verbose --release --target ${{ matrix.target }}
+
+      - name: Strip release binary (linux and macos)
+        if: matrix.build == 'linux' || matrix.build == 'macos'
+        run: strip "target/${{ matrix.target }}/release/doctave"
+
+      - name: Get release download URL
+        uses: actions/download-artifact@v1
+        with:
+          name: artifacts
+          path: artifacts
+
+      - name: Set release ENV variables
+        shell: bash
+        run: |
+          release_upload_url="$(cat artifacts/release-upload-url)"
+          echo "RELEASE_UPLOAD_URL=$release_upload_url" >> $GITHUB_ENV
+          release_version="$(cat artifacts/release-version)"
+          echo "RELEASE_VERSION=$release_version" >> $GITHUB_ENV
+
+      - name: Show end
+        shell: bash
+        run: |
+          echo "release version: ${{ env.RELEASE_VERSION }}"
+          echo "release upload url: ${{ env.RELEASE_UPLOAD_URL }}"
+
+      - name: Build archive
+        shell: bash
+        run: |
+          staging="doctave-${{ env.RELEASE_VERSION }}-${{ matrix.target }}"
+          mkdir -p "$staging"
+
+          if [ "${{ matrix.os }}" = "windows-2019" ]; then
+            cp "target/${{ matrix.target }}/release/doctave.exe" "$staging/"
+            7z a "$staging.zip" "$staging"
+            echo "ASSET=$staging.zip" >> $GITHUB_ENV
+          else
+            cp "target/${{ matrix.target }}/release/doctave" "$staging/"
+            tar czf "$staging.tar.gz" "$staging"
+            echo "ASSET=$staging.tar.gz" >> $GITHUB_ENV
+          fi
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ env.ASSET }}
+          path: ${{ env.ASSET }}
+
+      - name: Upload release archive
+        uses: actions/upload-release-asset@v1.0.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ env.RELEASE_UPLOAD_URL }}
+          asset_path: ${{ env.ASSET }}
+          asset_name: ${{ env.ASSET }}
+          asset_content_type: application/octet-stream

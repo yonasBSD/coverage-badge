@@ -1,0 +1,34 @@
+name: Generate Changelog and Release
+
+on:
+  schedule:
+    - cron: "0 0 * * *" # Runs daily at midnight
+  workflow_dispatch: # Manual override
+
+jobs:
+  changelog:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install git-cliff
+        run: |
+          curl -L https://github.com/orhun/git-cliff/releases/latest/download/git-cliff-x86_64-unknown-linux-gnu.tar.gz \
+          | tar -xz
+          sudo mv git-cliff /usr/local/bin/
+
+      - name: Generate CHANGELOG.md
+        run: |
+          git-cliff --output CHANGELOG.md
+
+      - name: Commit changelog
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add CHANGELOG.md
+          git commit -m "chore: update changelog" || echo "No changes to commit"
+
+      - name: Push changes
+        run: |
+          git push

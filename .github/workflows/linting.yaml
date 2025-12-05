@@ -1,0 +1,151 @@
+name: Lint & Format
+
+on:
+  push:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  lint:
+    name: Linting
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain (with clippy)
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          components: clippy
+          override: true
+
+      - name: Run cargo clippy
+        run: cargo clippy --workspace --all-targets --all-features --message-format=json -- -D warnings > clippy.json
+
+      - name: Upload SARIF results
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: clippy.json
+
+  format:
+    name: Formatting
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain (with rustfmt)
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          components: rustfmt
+          override: true
+
+      - name: Run cargo fmt check
+        run: cargo fmt --all -- --check
+
+  spellcheck:
+    name: Spellcheck
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: codespell-project/actions-codespell@v1
+        with:
+          ignore_words_file: .codespellignore
+
+  linkcheck:
+    name: Markdown Link Check
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v3
+      - uses: tcort/github-action-markdown-link-check@v1
+        with:
+          file: README.md
+
+  check-unused-deps:
+    name: Unused dependencies
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Rust nightly
+        uses: dtolnay/rust-toolchain@nightly
+
+      - name: Install cargo-binstall
+        uses: taiki-e/install-action@v2
+
+      - name: Install cargo-udeps
+        run: cargo binstall -y cargo-udeps
+
+      - name: Run cargo-udeps
+        run: cargo +nightly udeps --workspace --all-targets
+
+  conventional-commits:
+    name: Conventional Commits
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # full history needed
+
+      - name: Install cargo-binstall
+        uses: taiki-e/install-action@v2
+
+      - name: Install Cocogitto
+        run: cargo binstall -y cocogitto
+
+      - name: Run Conventional Commits check
+        id: cogcheck
+        run: |
+          set +e
+          cog check ${{ github.event.pull_request.base.sha }}..${{ github.sha }} > result.txt 2>&1
+          echo "exit_code=$?" >> $GITHUB_OUTPUT
+          cat result.txt
+
+      - name: Add PR comment if check fails
+        if: steps.cogcheck.outputs.exit_code != '0'
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          header: conventional-commits
+          message: |
+            🚨 **Conventional Commits check failed!**
+
+            Your commit messages don’t comply with the Conventional Commits spec.
+
+            <details>
+            <summary>Details</summary>
+
+            ```
+            ${{ steps.cogcheck.outputs.exit_code }}
+            ```
+            </details>
+
+            ### 💡 How to fix
+            You can rewrite your commit messages using interactive rebase:
+
+            ```bash
+            git rebase -i origin/main
+            ```
+
+            - Change `pick` to `reword` for commits you need to fix.
+            - Edit the commit message to follow Conventional Commits (e.g. `feat: add login`, `fix: correct typo`).
+            - Save and continue the rebase.
+
+            If you only need to fix the latest commit:
+
+            ```bash
+            git commit --amend -m "feat: update README with installation guide"
+            ```
+
+            Then force-push your branch:
+
+            ```bash
+            git push --force
+            ```
+
+            ✅ Once you fix your commit messages, re-run the PR checks and this warning will disappear.
