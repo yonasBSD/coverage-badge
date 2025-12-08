@@ -67,7 +67,10 @@ mod tests {
     #[test]
     fn test_badge_contains_coverage_label() {
         let svg = generate_badge(85.0);
-        assert!(svg.contains("coverage"), "Badge should contain 'coverage' label");
+        assert!(
+            svg.contains("coverage"),
+            "Badge should contain 'coverage' label"
+        );
     }
 
     #[test]
@@ -82,7 +85,10 @@ mod tests {
         assert!(svg.contains("#4c1"), "85% coverage should use green color");
 
         let svg_low = generate_badge(30.0);
-        assert!(svg_low.contains("#e05d44"), "30% coverage should use red color");
+        assert!(
+            svg_low.contains("#e05d44"),
+            "30% coverage should use red color"
+        );
     }
 
     #[test]
@@ -122,7 +128,10 @@ mod tests {
     #[test]
     fn test_badge_yellow_coverage() {
         let svg = generate_badge(65.0);
-        assert!(svg.contains("#dfb317"), "65% coverage should use yellow color");
+        assert!(
+            svg.contains("#dfb317"),
+            "65% coverage should use yellow color"
+        );
     }
 
     #[test]
@@ -153,6 +162,9 @@ mod tests {
     fn test_badge_has_gradient() {
         let svg = generate_badge(50.0);
         assert!(svg.contains("linearGradient"), "Badge should have gradient");
-        assert!(svg.contains("id=\"smooth\""), "Gradient should have id 'smooth'");
+        assert!(
+            svg.contains("id=\"smooth\""),
+            "Gradient should have id 'smooth'"
+        );
     }
 }

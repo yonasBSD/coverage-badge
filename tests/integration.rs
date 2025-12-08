@@ -22,7 +22,10 @@ fn test_generates_badge_file() {
     let (stdout, _, code) = run_cli(&["--coverage", "75", "--output", output_path]);
 
     assert_eq!(code, 0, "Should exit with code 0");
-    assert!(stdout.contains("Badge written to"), "Should print success message");
+    assert!(
+        stdout.contains("Badge written to"),
+        "Should print success message"
+    );
     assert!(fs::metadata(output_path).is_ok(), "File should exist");
 
     let contents = fs::read_to_string(output_path).unwrap();
@@ -39,7 +42,11 @@ fn test_rejects_negative_coverage() {
     assert_ne!(code, 0, "Should exit with non-zero code");
     // Clap exits with code 2 when it can't parse arguments
     // Note: -5 is interpreted as a flag, not a negative number
-    assert!(stderr.contains("unexpected argument") || stderr.contains("coverage must be between 0 and 100"), "Should show error");
+    assert!(
+        stderr.contains("unexpected argument")
+            || stderr.contains("coverage must be between 0 and 100"),
+        "Should show error"
+    );
 }
 
 #[test]
@@ -47,7 +54,10 @@ fn test_rejects_coverage_over_100() {
     let (_, stderr, code) = run_cli(&["--coverage", "150", "--output", "test.svg"]);
 
     assert_eq!(code, 1, "Should exit with code 1");
-    assert!(stderr.contains("coverage must be between 0 and 100"), "Should show error");
+    assert!(
+        stderr.contains("coverage must be between 0 and 100"),
+        "Should show error"
+    );
 }
 
 #[test]
@@ -60,7 +70,10 @@ fn test_creates_missing_directory() {
     let (stdout, _, code) = run_cli(&["--coverage", "50", "--output", output_path]);
 
     assert_eq!(code, 0, "Should exit with code 0");
-    assert!(stdout.contains("Badge written to"), "Should print success message");
+    assert!(
+        stdout.contains("Badge written to"),
+        "Should print success message"
+    );
     assert!(fs::metadata(output_path).is_ok(), "File should exist");
 
     // Cleanup

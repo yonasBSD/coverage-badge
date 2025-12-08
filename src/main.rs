@@ -21,7 +21,10 @@ struct Cli {
 /// Validates coverage is within valid range (0-100).
 fn validate_coverage(coverage: f64) -> Result<(), String> {
     if coverage < 0.0 || coverage > 100.0 {
-        Err(format!("coverage must be between 0 and 100, got: {}", coverage))
+        Err(format!(
+            "coverage must be between 0 and 100, got: {}",
+            coverage
+        ))
     } else {
         Ok(())
     }
@@ -31,9 +34,8 @@ fn validate_coverage(coverage: f64) -> Result<(), String> {
 fn ensure_output_dir(path: &Path) -> Result<(), String> {
     if let Some(parent) = path.parent() {
         if !parent.as_os_str().is_empty() && !parent.exists() {
-            fs::create_dir_all(parent).map_err(|e| {
-                format!("cannot create directory '{}': {}", parent.display(), e)
-            })?;
+            fs::create_dir_all(parent)
+                .map_err(|e| format!("cannot create directory '{}': {}", parent.display(), e))?;
         }
     }
     Ok(())
