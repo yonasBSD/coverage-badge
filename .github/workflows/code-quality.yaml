@@ -2,11 +2,11 @@ name: CodeQL Analysis
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
   schedule:
-    - cron: '0 3 * * 1' # weekly scan
+    - cron: "0 3 * * 1" # weekly scan
 
 jobs:
   analyze:
@@ -20,11 +20,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        language: [ 'rust' ]
+        language: ["rust"]
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v3

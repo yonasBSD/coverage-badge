@@ -5,40 +5,50 @@ on:
   pull_request:
     types: [opened, synchronize, reopened]
 
+permissions:
+  contents: read
+  pull-requests: write
+
 jobs:
   lint:
     name: Linting
     runs-on: ubuntu-latest
+    permissions:
+      security-events: write
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Install Rust toolchain (with clippy)
-        uses: actions-rs/toolchain@v1
+        uses: dtolnay/rust-toolchain@nightly
         with:
-          toolchain: stable
           components: clippy
-          override: true
+
+      - name: Install cargo-binstall
+        uses: cargo-bins/cargo-binstall@main
+
+      - name: Install clippy-sarif and sarif-fmt
+        run: cargo binstall -y clippy-sarif sarif-fmt
 
       - name: Run cargo clippy
-        run: cargo clippy --workspace --all-targets --all-features --message-format=json -- -D warnings > clippy.json
+        run: cargo clippy --workspace --all-targets --all-features --message-format=json -- -D warnings | clippy-sarif | tee results.sarif | sarif-fmt
 
       - name: Upload SARIF results
-        uses: github/codeql-action/upload-sarif@v2
+        uses: github/codeql-action/upload-sarif@v4
         with:
-          sarif_file: clippy.json
+          sarif_file: results.sarif
 
   format:
     name: Formatting
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Install Rust toolchain (with rustfmt)
         uses: actions-rs/toolchain@v1
         with:
-          toolchain: stable
+          toolchain: nightly
           components: rustfmt
           override: true
 
@@ -49,17 +59,29 @@ jobs:
     name: Spellcheck
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: codespell-project/actions-codespell@v1
+      - uses: actions/checkout@v6
+      - uses: reviewdog/action-typos@v1
         with:
-          ignore_words_file: .codespellignore
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@nightly
+
+      - name: Install cargo-binstall
+        uses: cargo-bins/cargo-binstall@main
+
+      - name: Install typos-cli
+        run: cargo binstall -y typos-cli
+
+      - name: Search for typos
+        run: typos
 
   linkcheck:
     name: Markdown Link Check
     runs-on: ubuntu-latest
     continue-on-error: true
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v6
       - uses: tcort/github-action-markdown-link-check@v1
         with:
           file: README.md
@@ -69,13 +91,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
-      - name: Install Rust nightly
+      - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@nightly
 
       - name: Install cargo-binstall
-        uses: taiki-e/install-action@v2
+        uses: cargo-bins/cargo-binstall@main
+
+      - name: Install cargo-machete
+        run: cargo binstall -y cargo-machete
+
+      - name: Run cargo-machete
+        run: cargo +nightly machete --with-metadata
 
       - name: Install cargo-udeps
         run: cargo binstall -y cargo-udeps
@@ -89,12 +117,15 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
-          fetch-depth: 0   # full history needed
+          fetch-depth: 0 # full history needed
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@nightly
 
       - name: Install cargo-binstall
-        uses: taiki-e/install-action@v2
+        uses: cargo-bins/cargo-binstall@main
 
       - name: Install Cocogitto
         run: cargo binstall -y cocogitto
@@ -105,7 +136,9 @@ jobs:
           set +e
           cog check ${{ github.event.pull_request.base.sha }}..${{ github.sha }} > result.txt 2>&1
           echo "exit_code=$?" >> $GITHUB_OUTPUT
-          cat result.txt
+          echo "details<<EOF" >> $GITHUB_OUTPUT
+          cat result.txt >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
 
       - name: Add PR comment if check fails
         if: steps.cogcheck.outputs.exit_code != '0'
@@ -121,7 +154,7 @@ jobs:
             <summary>Details</summary>
 
             ```
-            ${{ steps.cogcheck.outputs.exit_code }}
+            ${{ steps.cogcheck.outputs.details }}
             ```
             </details>
 

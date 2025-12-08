@@ -2,7 +2,7 @@ name: Code Coverage
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
 
 permissions:
   contents: write
@@ -13,13 +13,13 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Install Rust
-        uses: dtolnay/rust-toolchain@stable
+        uses: dtolnay/rust-toolchain@nightly
 
       - name: Install cargo-binstall
-        uses: taiki-e/install-action@v2
+        uses: cargo-bins/cargo-binstall@main
 
       - name: Install tarpaulin
         run: cargo binstall -y cargo-tarpaulin
