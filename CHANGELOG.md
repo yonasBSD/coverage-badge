@@ -2,4 +2,4 @@
 
 ### ⚙️ Miscellaneous Tasks
 
-- Update create-pull-request to v7.
+- Use yonasBSD/coverage-badge@v0
