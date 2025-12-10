@@ -1,4 +1,4 @@
-## [unreleased]
+## [0.2.0] - 2025-12-09
 
 ### 🚀 Features
 
@@ -8,6 +8,7 @@
 
 - Pull --rebase before push to avoid conflicts
 - Stash untracked files before rebase to avoid conflicts
+- Add conditional check for greeting job execution (#5)
 
 ### 🧪 Testing
 
@@ -29,6 +30,9 @@
 - Update changelog (#1)
 - Use yonasBSD/coverage-badge@v0
 - Use yonasBSD/coverage-badge@v0
+- Update changelog (#3)
+- Update step name in dependency-review.yaml (#4)
+- Changelog workflow should have signed commits.
 ## [0.1.0] - 2025-12-05
 
 ### 🚀 Features
