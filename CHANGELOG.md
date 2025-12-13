@@ -1,3 +1,8 @@
+## [unreleased]
+
+### ⚙️ Miscellaneous Tasks
+
+- Update changelog (#7)
 ## [0.2.0] - 2025-12-09
 
 ### 🚀 Features
