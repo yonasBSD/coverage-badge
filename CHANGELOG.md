@@ -3,6 +3,7 @@
 ### ⚙️ Miscellaneous Tasks
 
 - Update changelog (#7)
+- Update changelog (#8)
 ## [0.2.0] - 2025-12-09
 
 ### 🚀 Features
