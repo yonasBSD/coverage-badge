@@ -28,7 +28,7 @@ Add this step to your workflow after running your coverage tool:
 
 ```yaml
 - name: Generate coverage badge
-  uses: yonasBSD/coverage-badge@v0
+  uses: yonasBSD/coverage-badge@main
   with:
     coverage: ${{ steps.coverage.outputs.percentage }}
     output: assets/coverage.svg
