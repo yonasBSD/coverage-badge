@@ -127,7 +127,7 @@ jobs:
           fi
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v6
         with:
           name: ${{ env.ASSET }}
           path: ${{ env.ASSET }}
